@@ -181,7 +181,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -191,7 +191,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -201,7 +201,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -211,7 +211,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -221,7 +221,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -231,7 +231,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -241,7 +241,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -251,7 +251,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 
@@ -261,7 +261,7 @@ plot(my_cons_net,
      tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
-     edge.width = 3,
+     edge.width = 2,
      cex=0.9,
      direction = "axial")
 ```
