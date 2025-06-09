@@ -1,0 +1,232 @@
+---
+format: html
+editor_options: 
+  chunk_output_type: console
+fig-height: 7
+fig-width: 9
+---
+
+```{r}
+library(tidyverse)
+library(widyr)
+library(phangorn)
+
+list.files("/home/agricolamz/work/databases/TALD/data/orig_table", 
+                 full.names = TRUE) |> 
+  map(function(i){
+  read_tsv(i, show_col_types = FALSE) |> 
+    mutate(source = str_remove(i, "/home/agricolamz/work/databases/TALD/data/orig_table/"),
+           source = str_remove(source, "\\.tsv")) |> 
+    select(language, idiom, type, source, starts_with("value")) |> 
+    mutate_all(as.character)
+}) |> 
+  list_rbind() |> 
+  mutate(value1 = str_c(source, " ||| ", value1, " ||| ", value1_name),
+         value2 = str_c(source, " ||| ", value2, " ||| ", value2_name),
+         value3 = str_c(source, " ||| ", value3, " ||| ", value3_name),
+         value4 = str_c(source, " ||| ", value4, " ||| ", value4_name),
+         value5 = str_c(source, " ||| ", value5, " ||| ", value5_name)) |> 
+  select(language, idiom, type, value1, value2, value3, value4, value5)  |> 
+  pivot_longer(names_to = "value_id", values_to = "value", -c(language, idiom, type)) |> 
+  na.omit() |> 
+  separate_wider_delim(value, names = c("source", "value", "value_name"), delim = " ||| ") |> 
+  select(-value_id) |> 
+  distinct() ->
+  df
+
+df |> 
+  count(language, idiom, value_name) |> 
+  count(language, idiom) |> 
+  mutate(merged = str_c(idiom, " ", language),
+         merged = fct_reorder(merged, n)) |> 
+  filter(n > 50) |> 
+  distinct(language, idiom) |> 
+  mutate(languageuage_sample = TRUE) -> 
+  language_idiom_sample
+
+df |> 
+  left_join(language_idiom_sample) |> 
+  filter(!is.na(languageuage_sample)) |> 
+  select(-languageuage_sample, -type, -source) |> 
+  group_by(language, idiom, value_name) |> 
+  slice_sample(n = 1) |> 
+  ungroup() |> 
+  count(value_name, sort = TRUE) |> 
+  filter(n > 30)  |> 
+  pull(value_name) ->
+  features_sample
+
+read_tsv("/home/agricolamz/work/databases/TALD/data/tald_villages.csv") |>
+  distinct(default_level, aff_col) |> 
+  rename(language = default_level) ->
+  colors
+
+df |> 
+  left_join(language_idiom_sample) |> 
+  filter(!is.na(languageuage_sample),
+         value_name %in% features_sample) |> 
+  select(-languageuage_sample, -type, -source) |> 
+  group_by(language, idiom, value_name) |> 
+  slice_sample(n = 1) |> 
+  ungroup() |> 
+  left_join(colors) |> 
+  pivot_wider(names_from = value_name, values_from = value) |> 
+  mutate(idiom = case_when(idiom == "Modern Eastern Armenian" ~ "Eastern Armenian",
+                           idiom == "Kaitag" ~ "Kajtag",
+                           idiom == "Alik" ~ "Alıc",
+                           idiom == "Kwantlada" ~ "Kvantlada",
+                           TRUE ~ idiom),
+         lang_label = language,
+         language = case_when(language == "Agul" ~ "Aghul",
+                              language == "Qushan Agul" ~ "Qushan Aghul",
+                              language == "Gigatli" ~ "Chamalal",
+                              language == "Juhuri" ~ "Judeo-Tat",
+                              language == "Northern Dargwa" ~ "North-Central Dargwa",
+                          idiom == "Northern Akhvakh" ~ "Northern Akhvakh",
+                          idiom == "Tad-Magitl'" ~ "Northern Akhvakh",
+                          language == "Armenian" ~ "Eastern Armenian",
+                          language == "Azerbaijani" ~ "Northern Azerbaijani",
+                          idiom == "Chirag" ~ "Chirag",
+                          idiom == "Akusha" ~ "North-Central Dargwa",
+                          idiom == "Itsari" ~ "Southwestern Dargwa",
+                          idiom == "Kajtag" ~ "Kajtak",
+                          idiom == "Kubachi" ~ "Kubachi",
+                          idiom == "Mehweb" ~ "North-Central Dargwa",
+                          idiom == "Sanzhi" ~ "Southwestern Dargwa",
+                          idiom == "Tanty" ~ "Southwestern Dargwa",
+                          idiom == "Standard Dargwa" ~ "North-Central Dargwa",
+                          idiom == "Tukita" ~ "Tokita",
+                          language == "Khwarshi" ~ "Khwarshi-Inkhoqwari",
+                          idiom == "Judeo-Tat" ~ "Judeo-Tat",
+                          language == "Tsova-Tush" ~ "Bats",
+                          TRUE ~ language))  ->
+  for_sampling
+
+for_sampling |> 
+  mutate(aff_col = case_when(lang_label == "Eastern Armenian" ~ "black",
+                             lang_label == "Juhuri" ~ "black",
+                             lang_label == "Azerbaijani" ~ "black",
+                             lang_label == "Kumyk" ~ "black",
+                             lang_label == "Nogai" ~ "black",
+                             TRUE ~ aff_col)) |> 
+  select(lang_label, aff_col) ->
+  colors
+```
+
+```{r sampling}
+#| cache: true
+
+map(1:300, .progress = TRUE, 
+    function(i){
+  for_sampling |> 
+    pivot_longer(names_to = "feature", values_to = "value", -c(language, idiom)) |> 
+    group_by(feature, language) |> 
+    sample_n(size = 1) |> 
+    ungroup() |> 
+    mutate(merged_value = str_c(feature, value)) |> 
+    pairwise_count(language, merged_value) |> 
+    mutate(ratio = 1- n/length(unique(df$value_name))) |> 
+    select(-n)  |>
+    pivot_wider(names_from = item2, values_from = ratio) |> 
+    arrange(item1) |> 
+    column_to_rownames("item1") |> 
+    as.dist() |> 
+    nj() 
+}) ->
+  trees
+S3Class(trees) <- "multiPhylo"
+```
+
+
+```{r}
+my_cons_net <- consensusNet(trees, prob = 0.1)
+plot(my_cons_net,
+     sub = "0.1",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.2)
+plot(my_cons_net,
+     sub = "0.2",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.3)
+plot(my_cons_net,
+     sub = "0.3",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.4)
+plot(my_cons_net,
+     sub = "0.4",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.5)
+plot(my_cons_net,
+     sub = "0.5",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.6)
+plot(my_cons_net,
+     sub = "0.6",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.7)
+plot(my_cons_net,
+     sub = "0.7",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.8)
+plot(my_cons_net,
+     sub = "0.8",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+
+my_cons_net <- consensusNet(trees, prob = 0.9)
+plot(my_cons_net,
+     sub = "0.9",
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     use.edge.length = TRUE,
+     show.tip.label = TRUE,
+     edge.width = 3,
+     cex=0.9,
+     direction = "axial")
+```
+
