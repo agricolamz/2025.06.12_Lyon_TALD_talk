@@ -66,7 +66,10 @@ df |>
 read_tsv("/home/agricolamz/work/databases/TALD/data/tald_villages.csv") |>
   distinct(default_level, aff_col) |> 
   rename(language = default_level) |> 
-  mutate(aff_col = case_when(language == "Eastern Armenian" ~ "black",
+  mutate(language = case_when(language == "Southwestern Dargwa" ~ "Tanti",
+                              language == "North-Central Dargwa" ~ "Standard Dargwa",
+                              TRUE ~ language),
+         aff_col = case_when(language == "Eastern Armenian" ~ "black",
                              language == "Juhuri" ~ "black",
                              language == "Azerbaijani" ~ "black",
                              language == "Kumyk" ~ "black",
@@ -82,6 +85,9 @@ df |>
   group_by(language, idiom, value_name) |> 
   slice_sample(n = 1) |> 
   ungroup() |> 
+  mutate(language = case_when(language == "Southwestern Dargwa" ~ "Tanti",
+                              language == "North-Central Dargwa" ~ "Standard Dargwa",
+                              TRUE ~ language)) |> 
   left_join(colors) |> 
   pivot_wider(names_from = value_name, values_from = value) ->
   for_sampling
@@ -99,7 +105,7 @@ map(1:300, .progress = FALSE,
     ungroup() |> 
     mutate(merged_value = str_c(feature, value)) |> 
     pairwise_count(language, merged_value) |> 
-    mutate(ratio = 1- n/length(unique(df$value_name))) |> 
+    mutate(ratio = 1 - n/length(unique(df$value_name))) |> 
     select(-n)  |>
     pivot_wider(names_from = item2, values_from = ratio) |> 
     arrange(item1) |> 
@@ -108,6 +114,7 @@ map(1:300, .progress = FALSE,
     nj() 
 }) ->
   trees
+
 S3Class(trees) <- "multiPhylo"
 ```
 
