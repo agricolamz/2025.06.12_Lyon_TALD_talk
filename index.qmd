@@ -46,7 +46,7 @@ df |>
   count(language, idiom) |> 
   mutate(merged = str_c(idiom, " ", language),
          merged = fct_reorder(merged, n)) |> 
-  filter(n > 50) |> 
+  filter(n > 20) |> 
   distinct(language, idiom) |> 
   mutate(languageuage_sample = TRUE) -> 
   language_idiom_sample
@@ -59,7 +59,7 @@ df |>
   slice_sample(n = 1) |> 
   ungroup() |> 
   count(value_name, sort = TRUE) |> 
-  filter(n > 30)  |> 
+  filter(n > 10)  |> 
   pull(value_name) ->
   features_sample
 
@@ -114,6 +114,7 @@ map(1:300, .progress = FALSE,
     nj() 
 }) ->
   trees
+
 
 S3Class(trees) <- "multiPhylo"
 ```
