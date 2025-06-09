@@ -4,13 +4,20 @@ editor_options:
   chunk_output_type: console
 fig-height: 7
 fig-width: 9
+echo: false
+message: false
 ---
 
 ```{r}
+#| include: false
+
 library(tidyverse)
 library(widyr)
 library(phangorn)
+```
 
+
+```{r}
 list.files("/home/agricolamz/work/databases/TALD/data/orig_table", 
                  full.names = TRUE) |> 
   map(function(i){
@@ -58,7 +65,13 @@ df |>
 
 read_tsv("/home/agricolamz/work/databases/TALD/data/tald_villages.csv") |>
   distinct(default_level, aff_col) |> 
-  rename(language = default_level) ->
+  rename(language = default_level) |> 
+  mutate(aff_col = case_when(language == "Eastern Armenian" ~ "black",
+                             language == "Juhuri" ~ "black",
+                             language == "Azerbaijani" ~ "black",
+                             language == "Kumyk" ~ "black",
+                             language == "Nogai" ~ "black",
+                             TRUE ~ aff_col))  ->
   colors
 
 df |> 
@@ -70,53 +83,14 @@ df |>
   slice_sample(n = 1) |> 
   ungroup() |> 
   left_join(colors) |> 
-  pivot_wider(names_from = value_name, values_from = value) |> 
-  mutate(idiom = case_when(idiom == "Modern Eastern Armenian" ~ "Eastern Armenian",
-                           idiom == "Kaitag" ~ "Kajtag",
-                           idiom == "Alik" ~ "Alıc",
-                           idiom == "Kwantlada" ~ "Kvantlada",
-                           TRUE ~ idiom),
-         lang_label = language,
-         language = case_when(language == "Agul" ~ "Aghul",
-                              language == "Qushan Agul" ~ "Qushan Aghul",
-                              language == "Gigatli" ~ "Chamalal",
-                              language == "Juhuri" ~ "Judeo-Tat",
-                              language == "Northern Dargwa" ~ "North-Central Dargwa",
-                          idiom == "Northern Akhvakh" ~ "Northern Akhvakh",
-                          idiom == "Tad-Magitl'" ~ "Northern Akhvakh",
-                          language == "Armenian" ~ "Eastern Armenian",
-                          language == "Azerbaijani" ~ "Northern Azerbaijani",
-                          idiom == "Chirag" ~ "Chirag",
-                          idiom == "Akusha" ~ "North-Central Dargwa",
-                          idiom == "Itsari" ~ "Southwestern Dargwa",
-                          idiom == "Kajtag" ~ "Kajtak",
-                          idiom == "Kubachi" ~ "Kubachi",
-                          idiom == "Mehweb" ~ "North-Central Dargwa",
-                          idiom == "Sanzhi" ~ "Southwestern Dargwa",
-                          idiom == "Tanty" ~ "Southwestern Dargwa",
-                          idiom == "Standard Dargwa" ~ "North-Central Dargwa",
-                          idiom == "Tukita" ~ "Tokita",
-                          language == "Khwarshi" ~ "Khwarshi-Inkhoqwari",
-                          idiom == "Judeo-Tat" ~ "Judeo-Tat",
-                          language == "Tsova-Tush" ~ "Bats",
-                          TRUE ~ language))  ->
+  pivot_wider(names_from = value_name, values_from = value) ->
   for_sampling
-
-for_sampling |> 
-  mutate(aff_col = case_when(lang_label == "Eastern Armenian" ~ "black",
-                             lang_label == "Juhuri" ~ "black",
-                             lang_label == "Azerbaijani" ~ "black",
-                             lang_label == "Kumyk" ~ "black",
-                             lang_label == "Nogai" ~ "black",
-                             TRUE ~ aff_col)) |> 
-  select(lang_label, aff_col) ->
-  colors
 ```
 
 ```{r sampling}
 #| cache: true
 
-map(1:300, .progress = TRUE, 
+map(1:300, .progress = FALSE, 
     function(i){
   for_sampling |> 
     pivot_longer(names_to = "feature", values_to = "value", -c(language, idiom)) |> 
@@ -142,7 +116,7 @@ S3Class(trees) <- "multiPhylo"
 my_cons_net <- consensusNet(trees, prob = 0.1)
 plot(my_cons_net,
      sub = "0.1",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -152,7 +126,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.2)
 plot(my_cons_net,
      sub = "0.2",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -162,7 +136,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.3)
 plot(my_cons_net,
      sub = "0.3",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -172,7 +146,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.4)
 plot(my_cons_net,
      sub = "0.4",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -182,7 +156,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.5)
 plot(my_cons_net,
      sub = "0.5",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -192,7 +166,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.6)
 plot(my_cons_net,
      sub = "0.6",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -202,7 +176,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.7)
 plot(my_cons_net,
      sub = "0.7",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -212,7 +186,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.8)
 plot(my_cons_net,
      sub = "0.8",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,
@@ -222,7 +196,7 @@ plot(my_cons_net,
 my_cons_net <- consensusNet(trees, prob = 0.9)
 plot(my_cons_net,
      sub = "0.9",
-     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$lang_label)],
+     tip.color = colors$aff_col[match(my_cons_net$tip.label, colors$language)],
      use.edge.length = TRUE,
      show.tip.label = TRUE,
      edge.width = 3,

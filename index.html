@@ -20,41 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -83,402 +48,80 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.5
-✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.5.2     ✔ tibble    3.2.1
-✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-✔ purrr     1.0.4     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(widyr)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(phangorn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: ape
-
-Attaching package: 'ape'
-
-The following object is masked from 'package:dplyr':
-
-    where</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(<span class="st">"/home/agricolamz/work/databases/TALD/data/orig_table"</span>, </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="cf">function</span>(i){</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">read_tsv</span>(i, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">source =</span> <span class="fu">str_remove</span>(i, <span class="st">"/home/agricolamz/work/databases/TALD/data/orig_table/"</span>),</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">source =</span> <span class="fu">str_remove</span>(source, <span class="st">"</span><span class="sc">\\</span><span class="st">.tsv"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(language, idiom, type, source, <span class="fu">starts_with</span>(<span class="st">"value"</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate_all</span>(as.character)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">|&gt;</span> </span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list_rbind</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value1 =</span> <span class="fu">str_c</span>(source, <span class="st">" ||| "</span>, value1, <span class="st">" ||| "</span>, value1_name),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">value2 =</span> <span class="fu">str_c</span>(source, <span class="st">" ||| "</span>, value2, <span class="st">" ||| "</span>, value2_name),</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">value3 =</span> <span class="fu">str_c</span>(source, <span class="st">" ||| "</span>, value3, <span class="st">" ||| "</span>, value3_name),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>         <span class="at">value4 =</span> <span class="fu">str_c</span>(source, <span class="st">" ||| "</span>, value4, <span class="st">" ||| "</span>, value4_name),</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">value5 =</span> <span class="fu">str_c</span>(source, <span class="st">" ||| "</span>, value5, <span class="st">" ||| "</span>, value5_name)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(language, idiom, type, value1, value2, value3, value4, value5)  <span class="sc">|&gt;</span> </span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">names_to =</span> <span class="st">"value_id"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>, <span class="sc">-</span><span class="fu">c</span>(language, idiom, type)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_wider_delim</span>(value, <span class="at">names =</span> <span class="fu">c</span>(<span class="st">"source"</span>, <span class="st">"value"</span>, <span class="st">"value_name"</span>), <span class="at">delim =</span> <span class="st">" ||| "</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>value_id) <span class="sc">|&gt;</span> </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="ot">-&gt;</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  df</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(language, idiom, value_name) <span class="sc">|&gt;</span> </span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(language, idiom) <span class="sc">|&gt;</span> </span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">merged =</span> <span class="fu">str_c</span>(idiom, <span class="st">" "</span>, language),</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>         <span class="at">merged =</span> <span class="fu">fct_reorder</span>(merged, n)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">50</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(language, idiom) <span class="sc">|&gt;</span> </span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">languageuage_sample =</span> <span class="cn">TRUE</span>) <span class="ot">-&gt;</span> </span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  language_idiom_sample</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(language_idiom_sample) <span class="sc">|&gt;</span> </span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(languageuage_sample)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>languageuage_sample, <span class="sc">-</span>type, <span class="sc">-</span>source) <span class="sc">|&gt;</span> </span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(language, idiom, value_name) <span class="sc">|&gt;</span> </span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(value_name, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">30</span>)  <span class="sc">|&gt;</span> </span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(value_name) <span class="ot">-&gt;</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  features_sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Joining with `by = join_by(language, idiom)`</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">read_tsv</span>(<span class="st">"/home/agricolamz/work/databases/TALD/data/tald_villages.csv"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(default_level, aff_col) <span class="sc">|&gt;</span> </span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">language =</span> default_level) <span class="ot">-&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  colors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 1939 Columns: 23
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: "\t"
-chr  (19): village, rus_village, lang, aff, family, standard, default_level,...
-dbl   (3): id, lat, lon
-date  (1): dataset_version
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(language_idiom_sample) <span class="sc">|&gt;</span> </span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(languageuage_sample),</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         value_name <span class="sc">%in%</span> features_sample) <span class="sc">|&gt;</span> </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>languageuage_sample, <span class="sc">-</span>type, <span class="sc">-</span>source) <span class="sc">|&gt;</span> </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(language, idiom, value_name) <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(colors) <span class="sc">|&gt;</span> </span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> value_name, <span class="at">values_from =</span> value) <span class="sc">|&gt;</span> </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">idiom =</span> <span class="fu">case_when</span>(idiom <span class="sc">==</span> <span class="st">"Modern Eastern Armenian"</span> <span class="sc">~</span> <span class="st">"Eastern Armenian"</span>,</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                           idiom <span class="sc">==</span> <span class="st">"Kaitag"</span> <span class="sc">~</span> <span class="st">"Kajtag"</span>,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                           idiom <span class="sc">==</span> <span class="st">"Alik"</span> <span class="sc">~</span> <span class="st">"Alıc"</span>,</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                           idiom <span class="sc">==</span> <span class="st">"Kwantlada"</span> <span class="sc">~</span> <span class="st">"Kvantlada"</span>,</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                           <span class="cn">TRUE</span> <span class="sc">~</span> idiom),</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>         <span class="at">lang_label =</span> language,</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>         <span class="at">language =</span> <span class="fu">case_when</span>(language <span class="sc">==</span> <span class="st">"Agul"</span> <span class="sc">~</span> <span class="st">"Aghul"</span>,</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                              language <span class="sc">==</span> <span class="st">"Qushan Agul"</span> <span class="sc">~</span> <span class="st">"Qushan Aghul"</span>,</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>                              language <span class="sc">==</span> <span class="st">"Gigatli"</span> <span class="sc">~</span> <span class="st">"Chamalal"</span>,</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>                              language <span class="sc">==</span> <span class="st">"Juhuri"</span> <span class="sc">~</span> <span class="st">"Judeo-Tat"</span>,</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>                              language <span class="sc">==</span> <span class="st">"Northern Dargwa"</span> <span class="sc">~</span> <span class="st">"North-Central Dargwa"</span>,</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Northern Akhvakh"</span> <span class="sc">~</span> <span class="st">"Northern Akhvakh"</span>,</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Tad-Magitl'"</span> <span class="sc">~</span> <span class="st">"Northern Akhvakh"</span>,</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>                          language <span class="sc">==</span> <span class="st">"Armenian"</span> <span class="sc">~</span> <span class="st">"Eastern Armenian"</span>,</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>                          language <span class="sc">==</span> <span class="st">"Azerbaijani"</span> <span class="sc">~</span> <span class="st">"Northern Azerbaijani"</span>,</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Chirag"</span> <span class="sc">~</span> <span class="st">"Chirag"</span>,</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Akusha"</span> <span class="sc">~</span> <span class="st">"North-Central Dargwa"</span>,</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Itsari"</span> <span class="sc">~</span> <span class="st">"Southwestern Dargwa"</span>,</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Kajtag"</span> <span class="sc">~</span> <span class="st">"Kajtak"</span>,</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Kubachi"</span> <span class="sc">~</span> <span class="st">"Kubachi"</span>,</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Mehweb"</span> <span class="sc">~</span> <span class="st">"North-Central Dargwa"</span>,</span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Sanzhi"</span> <span class="sc">~</span> <span class="st">"Southwestern Dargwa"</span>,</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Tanty"</span> <span class="sc">~</span> <span class="st">"Southwestern Dargwa"</span>,</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Standard Dargwa"</span> <span class="sc">~</span> <span class="st">"North-Central Dargwa"</span>,</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Tukita"</span> <span class="sc">~</span> <span class="st">"Tokita"</span>,</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>                          language <span class="sc">==</span> <span class="st">"Khwarshi"</span> <span class="sc">~</span> <span class="st">"Khwarshi-Inkhoqwari"</span>,</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>                          idiom <span class="sc">==</span> <span class="st">"Judeo-Tat"</span> <span class="sc">~</span> <span class="st">"Judeo-Tat"</span>,</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>                          language <span class="sc">==</span> <span class="st">"Tsova-Tush"</span> <span class="sc">~</span> <span class="st">"Bats"</span>,</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>                          <span class="cn">TRUE</span> <span class="sc">~</span> language))  <span class="ot">-&gt;</span></span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  for_sampling</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(language, idiom)`
+Rows: 1939 Columns: 23
+── Column specification
+──────────────────────────────────────────────────────── Delimiter: "\t" chr
+(19): village, rus_village, lang, aff, family, standard, default_level,... dbl
+(3): id, lat, lon date (1): dataset_version
+ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Joining with `by = join_by(language, idiom)`
 Joining with `by = join_by(language)`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>for_sampling <span class="sc">|&gt;</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">aff_col =</span> <span class="fu">case_when</span>(lang_label <span class="sc">==</span> <span class="st">"Eastern Armenian"</span> <span class="sc">~</span> <span class="st">"black"</span>,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                             lang_label <span class="sc">==</span> <span class="st">"Juhuri"</span> <span class="sc">~</span> <span class="st">"black"</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                             lang_label <span class="sc">==</span> <span class="st">"Azerbaijani"</span> <span class="sc">~</span> <span class="st">"black"</span>,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                             lang_label <span class="sc">==</span> <span class="st">"Kumyk"</span> <span class="sc">~</span> <span class="st">"black"</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                             lang_label <span class="sc">==</span> <span class="st">"Nogai"</span> <span class="sc">~</span> <span class="st">"black"</span>,</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                             <span class="cn">TRUE</span> <span class="sc">~</span> aff_col)) <span class="sc">|&gt;</span> </span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lang_label, aff_col) <span class="ot">-&gt;</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  colors</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">300</span>, <span class="at">.progress =</span> <span class="cn">TRUE</span>, </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">function</span>(i){</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  for_sampling <span class="sc">|&gt;</span> </span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">names_to =</span> <span class="st">"feature"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>, <span class="sc">-</span><span class="fu">c</span>(language, idiom)) <span class="sc">|&gt;</span> </span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(feature, language) <span class="sc">|&gt;</span> </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample_n</span>(<span class="at">size =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">merged_value =</span> <span class="fu">str_c</span>(feature, value)) <span class="sc">|&gt;</span> </span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pairwise_count</span>(language, merged_value) <span class="sc">|&gt;</span> </span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ratio =</span> <span class="dv">1</span><span class="sc">-</span> n<span class="sc">/</span><span class="fu">length</span>(<span class="fu">unique</span>(df<span class="sc">$</span>value_name))) <span class="sc">|&gt;</span> </span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="sc">-</span>n)  <span class="sc">|&gt;</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> item2, <span class="at">values_from =</span> ratio) <span class="sc">|&gt;</span> </span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(item1) <span class="sc">|&gt;</span> </span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">column_to_rownames</span>(<span class="st">"item1"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.dist</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nj</span>() </span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>}) <span class="ot">-&gt;</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  trees</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■                                 2% |  ETA:  2m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■                                5% |  ETA:  2m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■                               9% |  ETA:  2m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■                             12% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■                            16% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■                           19% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■                          22% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■                         25% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■                        29% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■                       32% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■                      35% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■                     39% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■                    42% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■                   46% |  ETA:  1m</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■                  49% |  ETA: 47s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■                 52% |  ETA: 44s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■                55% |  ETA: 41s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■               59% |  ETA: 38s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■              62% |  ETA: 35s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■             65% |  ETA: 32s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■            69% |  ETA: 29s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■           72% |  ETA: 26s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■           75% |  ETA: 23s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■          78% |  ETA: 21s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■         81% |  ETA: 18s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■■        83% |  ETA: 16s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■■■       87% |  ETA: 12s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■      90% |  ETA:  9s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■     93% |  ETA:  6s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■    96% |  ETA:  3s</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■   99% |  ETA:  1s</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">S3Class</span>(trees) <span class="ot">&lt;-</span> <span class="st">"multiPhylo"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.1</span>)</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.1"</span>,</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.2</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.2"</span>,</span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-2.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-2.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.3</span>)</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.3"</span>,</span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-3.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-3.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.4</span>)</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.4"</span>,</span>
-<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-4.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-4.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.5</span>)</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.5"</span>,</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-5.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-5.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.6</span>)</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.6"</span>,</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-6.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-6.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.7</span>)</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.7"</span>,</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-7.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-7.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.8</span>)</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.8"</span>,</span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-8.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-8.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>my_cons_net <span class="ot">&lt;-</span> <span class="fu">consensusNet</span>(trees, <span class="at">prob =</span> <span class="fl">0.9</span>)</span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_cons_net,</span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">sub =</span> <span class="st">"0.9"</span>,</span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">tip.color =</span> colors<span class="sc">$</span>aff_col[<span class="fu">match</span>(my_cons_net<span class="sc">$</span>tip.label, colors<span class="sc">$</span>lang_label)],</span>
-<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">use.edge.length =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">show.tip.label =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.width =</span> <span class="dv">3</span>,</span>
-<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">cex=</span><span class="fl">0.9</span>,</span>
-<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">direction =</span> <span class="st">"axial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="index_files/figure-html/unnamed-chunk-2-9.png" class="img-fluid figure-img" width="864"></p>
+<p><img src="index_files/figure-html/unnamed-chunk-3-9.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
