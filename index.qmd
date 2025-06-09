@@ -46,7 +46,7 @@ df |>
   count(language, idiom) |> 
   mutate(merged = str_c(idiom, " ", language),
          merged = fct_reorder(merged, n)) |> 
-  filter(n > 20) |> 
+  filter(n > 35) |> 
   distinct(language, idiom) |> 
   mutate(languageuage_sample = TRUE) -> 
   language_idiom_sample
@@ -151,19 +151,21 @@ df |>
 ```{r sampling}
 #| cache: true
 
-map(1:300, .progress = FALSE, 
+map(1:300, 
+    .progress = FALSE, 
     function(i){
-  for_sampling |> 
+  for_sampling  |> 
     pivot_longer(names_to = "feature", values_to = "value", -c(language, idiom)) |> 
     group_by(feature, language) |> 
     sample_n(size = 1) |> 
     ungroup() |> 
     mutate(merged_value = str_c(feature, value)) |> 
-    pairwise_count(language, merged_value) |> 
-    mutate(ratio = 1 - n/length(unique(df$value_name))) |> 
-    select(-n)  |>
+    na.omit() |> 
+    pairwise_count(language, merged_value, diag = TRUE) |> 
+    mutate(n = if_else(item2 == item1, NA, n),
+           ratio = 1 - n/length(unique(df$value_name))) |> 
+    select(-n) |> 
     pivot_wider(names_from = item2, values_from = ratio) |> 
-    arrange(item1) |> 
     column_to_rownames("item1") |> 
     as.dist() |> 
     nj() 
