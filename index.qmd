@@ -76,7 +76,62 @@ read_tsv("/home/agricolamz/work/databases/TALD/data/tald_villages.csv") |>
                              language == "Nogai" ~ "black",
                              TRUE ~ aff_col))  ->
   colors
+```
 
+```{r}
+df |> 
+  distinct(source) |> 
+  nrow() ->
+  chapters
+
+df |> 
+  distinct(value_name) |> 
+  nrow() ->
+  features
+
+df |> 
+  distinct(language, idiom) |> 
+  nrow() ->
+  idioms
+
+df |> 
+  distinct(language) |> 
+  nrow() ->
+  languages
+```
+
+There are `r chapters` chapters by 23 researchres that introduce `r features` features that covers `r idioms` distinct idioms from `r languages` languages.
+
+```{r}
+df |> 
+  left_join(language_idiom_sample) |> 
+  filter(!is.na(languageuage_sample),
+         value_name %in% features_sample) |> 
+  distinct(value_name) |> 
+  nrow() ->
+  features_filtered
+
+df |> 
+  left_join(language_idiom_sample) |> 
+  filter(!is.na(languageuage_sample),
+         value_name %in% features_sample) |> 
+  distinct(language, idiom) |> 
+  nrow() ->
+  idioms_filtered
+
+df |> 
+  left_join(language_idiom_sample) |> 
+  filter(!is.na(languageuage_sample),
+         value_name %in% features_sample) |> 
+  distinct(language) |> 
+  nrow() ->
+  languages_filtered
+```
+
+After filtering there are `r features_filtered` features that covers `r idioms_filtered` distinct idioms from `r languages_filtered` languages.
+
+
+```{r}
 df |> 
   left_join(language_idiom_sample) |> 
   filter(!is.na(languageuage_sample),
@@ -114,7 +169,6 @@ map(1:300, .progress = FALSE,
     nj() 
 }) ->
   trees
-
 
 S3Class(trees) <- "multiPhylo"
 ```
