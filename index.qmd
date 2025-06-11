@@ -46,7 +46,7 @@ df |>
   count(language, idiom) |> 
   mutate(merged = str_c(idiom, " ", language),
          merged = fct_reorder(merged, n)) |> 
-  filter(n > 30) |> 
+  filter(n > 26) |> 
   distinct(language, idiom) |> 
   mutate(languageuage_sample = TRUE) -> 
   language_idiom_sample
